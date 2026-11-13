@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="color-scheme" content="dark" />
+<link rel="icon" href="data:," />
+<title>Terminal Intro — Sandeep S Rajesh</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#050708; --bg2:#090d10; --panel:#0b1014; --panel2:#0e151b;
+    --border:#1c2b36; --border2:#243a4a;
+    --text:#e8f0f2; --muted:#93a7b3; --muted2:#6b7f8c;
+    --green:#3dff8e; --green-dim:#1a7a4a;
+    --blue:#2fb9ff; --cyan:#2dd4ee; --amber:#ffb224;
+    --red:#ff5f57; --yellow:#febc2e; --green-dot:#28c840;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  /* subtle grid */
+  body::before{content:"";position:fixed;inset:0;background-image:linear-gradient(rgba(47,185,255,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(47,185,255,.045) 1px,transparent 1px);background-size:36px 36px;pointer-events:none;mask-image:radial-gradient(ellipse 90% 70% at 50% 0%,black 30%,transparent 75%)}
+  a{color:var(--cyan)}
+  button{font-family:inherit;cursor:pointer}
+  button,[role="button"]{min-height:38px}
+
+  .wrap{max-width:920px;margin:0 auto;padding:28px 18px 56px;position:relative}
+  /* HERO */
+  .hero{padding:18px 2px 22px}
+  .prompt-line{font-size:13px;color:var(--muted);display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+  .prompt-line .path{color:var(--blue)} .prompt-line .dollar{color:var(--green);font-weight:700}
+  .status{margin-left:auto;display:inline-flex;align-items:center;gap:7px;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);border:1px solid var(--border);background:rgba(255,255,255,.02);padding:7px 10px;border-radius:999px}
+  .status i{width:8px;height:8px;border-radius:50%;background:var(--green);display:block;box-shadow:0 0 0 4px rgba(61,255,142,.15);animation:pulse 1.8s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
+  h1{font-size:clamp(38px,7vw,68px);line-height:.95;letter-spacing:-.03em;margin:18px 0 10px;font-weight:800;text-transform:uppercase}
+  h1 span{color:var(--green)}
+  .subtitle{font-size:clamp(13px,2.4vw,16px);color:var(--text);font-weight:600;letter-spacing:.02em}
+  .subtitle b{color:var(--blue);font-weight:700}
+  .typing-row{margin-top:16px;font-size:15px;color:var(--muted);min-height:26px;display:flex;align-items:center;gap:2px;flex-wrap:wrap}
+  .typing-row .prefix{color:var(--green);font-weight:700;margin-right:8px}
+  #typedRole{color:#fff;font-weight:700}
+  .cursor{display:inline-block;width:9px;height:1.15em;background:var(--green);vertical-align:text-bottom;margin-left:3px;animation:blink 1s steps(1) infinite}
+  @keyframes blink{50%{opacity:0}}
+  .hero-copy{font-family:Inter,system-ui,sans-serif;font-size:15px;line-height:1.7;color:var(--muted);max-width:640px;margin:14px 0 0}
+  .hero-copy strong{color:var(--text)}
+
+  /* TERMINAL */
+  .terminal{margin-top:26px;background:var(--panel);border:1px solid var(--border2);border-radius:14px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.55),0 0 0 1px rgba(0,0,0,.4)}
+  .term-bar{display:flex;align-items:center;gap:10px;padding:12px 14px;background:#11181f;border-bottom:1px solid var(--border);min-height:48px}
+  .dots{display:flex;gap:8px}
+  .dots span{width:12px;height:12px;border-radius:50%;display:block}
+  .dots span:nth-child(1){background:var(--red)} .dots span:nth-child(2){background:var(--yellow)} .dots span:nth-child(3){background:var(--green-dot)}
+  .term-title{font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .term-title b{color:var(--text)}
+  @media(max-width:640px){ .term-title .extra{display:none} .term-bar{gap:8px} .term-actions button{padding:6px 8px} }
+  .term-actions{margin-left:auto;display:flex;gap:8px}
+  .term-actions button{background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:8px;padding:6px 10px;font-size:12px;min-height:36px}
+  .term-actions button:hover{color:#fff;border-color:var(--blue)}
+  .term-body{padding:18px 16px 14px;min-height:430px;max-height:560px;overflow-y:auto;font-size:13.8px;line-height:1.75;scrollbar-width:thin;scrollbar-color:#243a4a transparent}
+  .term-body::-webkit-scrollbar{width:6px} .term-body::-webkit-scrollbar-thumb{background:#243a4a;border-radius:99px}
+  .line{white-space:pre-wrap;word-break:break-word;margin:0 0 2px}
+  .line.cmd{margin-top:14px}
+  .line.cmd:first-child{margin-top:0}
+  .ps1{color:var(--green);font-weight:700} .ps1 .user{color:var(--green)} .ps1 .host{color:var(--blue)}
+  .out{color:#c7d6de} .out.dim{color:var(--muted)} .out b,.out strong{color:#fff}
+  .out .g{color:var(--green)} .out .b{color:var(--blue)} .out .c{color:var(--cyan)} .out .y{color:var(--amber)}
+  .out a{color:var(--cyan);text-decoration:underline;text-underline-offset:3px}
+  .tag{display:inline-block;border:1px solid var(--border2);background:#101a22;border-radius:6px;padding:1px 7px;margin:2px 3px 2px 0;font-size:12px;color:#dbeafe}
+  .inline-cmd{background:none;border:none;color:var(--cyan);padding:2px 4px;font-size:inherit;text-decoration:underline;text-underline-offset:3px;min-height:auto}
+  .inline-cmd:hover{color:#fff}
+  .input-line{display:flex;align-items:flex-start;gap:8px;padding:10px 16px 16px;border-top:1px dashed #1a2a36;background:var(--panel2)}
+  .input-line .ps1{padding-top:2px;white-space:nowrap;font-size:13.8px}
+  #cmdInput{flex:1;background:transparent;border:none;outline:none;color:#fff;font:inherit;font-size:14px;caret-color:var(--green);min-width:0;padding:2px 0}
+  #cmdInput::placeholder{color:#445a68}
+  .run-btn{background:var(--green);color:#04140a;border:none;font-weight:800;border-radius:8px;padding:0 16px;font-size:13px}
+
+  /* COMMAND DOCK */
+  .dock{margin-top:18px}
+  .dock-label{font-size:12px;color:var(--muted);letter-spacing:.05em;text-transform:uppercase;margin-bottom:10px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+  .dock-label span:last-child{text-transform:none;letter-spacing:0;color:var(--muted2)}
+  .chips{display:flex;flex-wrap:wrap;gap:9px}
+  .chip{background:#0d1419;border:1px solid var(--border2);color:var(--text);border-radius:999px;padding:9px 14px;font-size:13px;display:inline-flex;gap:8px;align-items:center;transition:.15s}
+  .chip::before{content:"$";color:var(--green);font-weight:800}
+  .chip:hover{border-color:var(--green);color:#fff;transform:translateY(-1px);background:#101e18}
+  .chip.primary{background:var(--green);color:#04140a;border-color:var(--green);font-weight:800}
+  .chip.primary::before{color:#04140a}
+  .chip.ghost{color:var(--muted)}
+
+  /* INFO GRID */
+  .grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:22px}
+  .card{background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:12px;padding:16px}
+  .card h3{margin:0 0 8px;font-size:12px;letter-spacing:.07em;text-transform:uppercase;color:var(--blue)}
+  .card p,.card li{font-family:Inter,system-ui,sans-serif;font-size:13.5px;line-height:1.65;color:var(--muted);margin:0}
+  .card p strong,.card li strong{color:var(--text)}
+  .card ul{margin:0;padding-left:16px} .card li{margin:3px 0}
+  .links{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+  .links a{font-family:"JetBrains Mono",monospace;font-size:12px;text-decoration:none;border:1px solid var(--border2);padding:8px 11px;border-radius:8px;color:var(--text);display:inline-flex;align-items:center;min-height:36px;background:#0b1218}
+  .links a:hover{border-color:var(--cyan);color:#fff}
+
+  footer{margin-top:28px;padding-top:18px;border-top:1px solid var(--border);display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted2)}
+  footer .tagline{color:var(--muted)} footer .tagline b{color:var(--green)}
+
+  @media(max-width:700px){
+    .wrap{padding:18px 12px 40px}
+    .grid{grid-template-columns:1fr}
+    .term-body{min-height:400px;max-height:520px;font-size:13px;padding:14px 12px}
+    .input-line{padding:10px 12px 14px}
+    .status{margin-left:0}
+    .term-actions button#soundBtn{display:none}
+  }
+  @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <!-- HERO -->
+  <section class="hero" aria-label="Introduction">
+    <div class="prompt-line">
+      <span><span class="path">~/skullace</span> <span class="dollar">$</span> ./intro.sh</span>
+      <span class="status"><i></i> Systems online</span>
+    </div>
+    <h1>Sandeep<br><span>S Rajesh</span></h1>
+    <p class="subtitle">SYSTEM ENGINEER <b>|</b> LINUX <b>•</b> CLOUD <b>•</b> DEVOPS</p>
+    <div class="typing-row" aria-live="polite">
+      <span class="prefix">&gt;</span><span id="typedRole">IT Infrastructure Administrator</span><span class="cursor" aria-hidden="true"></span>
+    </div>
+    <p class="hero-copy">4+ years keeping infrastructure running — <strong>Linux, servers, networks &amp; firewalls</strong> — now levelling up at IPSR into <strong>AWS, Docker &amp; Kubernetes</strong>. This page is a real terminal: type a command, or just tap one.</p>
+  </section>
+
+  <!-- TERMINAL -->
+  <section class="terminal" id="terminal" aria-label="Interactive terminal">
+    <div class="term-bar">
+      <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
+      <div class="term-title"><b>sandeep@skullace</b><span class="extra">: ~/portfolio — bash</span></div>
+      <div class="term-actions">
+        <button type="button" id="replayBtn" title="Replay intro">↻ Replay</button>
+        <button type="button" id="clearBtnTop" title="Clear terminal">Clear</button>
+      </div>
+    </div>
+    <div class="term-body" id="output" tabindex="0" aria-live="polite"></div>
+    <form class="input-line" id="cmdForm" autocomplete="off">
+      <span class="ps1"><span class="user">sandeep@skullace</span><span style="color:#93a7b3">:</span><span class="host">~</span><span style="color:#93a7b3">$</span></span>
+      <input id="cmdInput" type="text" placeholder="type 'help' and press Enter…" aria-label="Terminal command input" autocapitalize="off" autocorrect="off" spellcheck="false" />
+      <button class="run-btn" type="submit">Run ↵</button>
+    </form>
+  </section>
+
+  <!-- CLICKABLE COMMANDS -->
+  <section class="dock" aria-label="Quick commands">
+    <div class="dock-label"><span>Try a command — tap to run</span><span>↑ / ↓ for history • Tab to autocomplete • Ctrl+L to clear</span></div>
+    <div class="chips" id="chips">
+      <button class="chip primary" data-cmd="help">help</button>
+      <button class="chip" data-cmd="whoami">whoami</button>
+      <button class="chip" data-cmd="about">about</button>
+      <button class="chip" data-cmd="skills">skills</button>
+      <button class="chip" data-cmd="experience">experience</button>
+      <button class="chip" data-cmd="labs">labs</button>
+      <button class="chip" data-cmd="projects">projects</button>
+      <button class="chip" data-cmd="learning">learning</button>
+      <button class="chip" data-cmd="contact">contact</button>
+      <button class="chip ghost" data-cmd="clear">clear</button>
+    </div>
+  </section>
+
+  <!-- QUICK FACTS -->
+  <section class="grid" aria-label="Quick facts">
+    <article class="card">
+      <h3>$ now</h3>
+      <p><strong>IPSR — Sep 2026 – Present</strong><br>Advanced training in Linux / RHCSA, AWS, Docker &amp; Kubernetes. Previously at Luxon (Jul 2024 – Aug 2026).</p>
+    </article>
+    <article class="card">
+      <h3>$ focus.txt</h3>
+      <ul>
+        <li><strong>Proficient:</strong> Linux, Windows Server, Networking, Firewalls</li>
+        <li><strong>Building:</strong> AWS, Kubernetes, Terraform, Ansible</li>
+        <li><strong>Motto:</strong> Building. Automating. Securing.</li>
+      </ul>
+    </article>
+    <article class="card">
+      <h3>$ contact.sh</h3>
+      <p>Open to System Engineer, Linux &amp; Cloud / DevOps roles.</p>
+      <div class="links">
+        <a href="mailto:avusandeep@gmail.com">✉ Email</a>
+        <a href="https://www.linkedin.com/in/sandeep-s-rajesh-424b8b224/" target="_blank" rel="noopener">in LinkedIn ↗</a>
+        <a href="https://github.com/skullace-25" target="_blank" rel="noopener">GitHub ↗</a>
+      </div>
+    </article>
+  </section>
+
+  <footer>
+    <span class="tagline"><b>$ echo</b> "Building. Automating. Securing."</span>
+    <span>© Sandeep S Rajesh • Skullace — Type <button class="inline-cmd" data-cmd="sudo-hire" style="font-size:12px">sudo hire sandeep</button> in the terminal for a surprise</span>
+  </footer>
+</main>
+
+<script>
+(function(){
+  var output = document.getElementById('output');
+  var input = document.getElementById('cmdInput');
+  var form = document.getElementById('cmdForm');
+  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var history = [], histIdx = -1, booting = false;
+
+  /* ---------- typing role rotator ---------- */
+  var roles = ["IT Infrastructure Administrator","Linux System Administrator","AWS Cloud Engineer","DevOps Engineer","Network & Security Enthusiast","Cybersecurity Practitioner"];
+  var roleEl = document.getElementById('typedRole');
+  var rIdx=0, cIdx=roles[0].length, deleting=false;
+  function tickRole(){
+    if(reduced) return;
+    var word = roles[rIdx];
+    if(!deleting){ cIdx++; if(cIdx>=word.length){ cIdx=word.length; deleting=true; setTimeout(tickRole,1700); roleEl.textContent=word; return; } }
+    else { cIdx--; if(cIdx<=0){ cIdx=0; deleting=false; rIdx=(rIdx+1)%roles.length; } }
+    roleEl.textContent = roles[rIdx].slice(0, Math.max(cIdx,1));
+    setTimeout(tickRole, deleting?32:62);
+  }
+  if(!reduced) setTimeout(tickRole, 2200);
+
+  /* ---------- helpers ---------- */
+  function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
+  function scrollEnd(){ output.scrollTop = output.scrollHeight; }
+  function addHTML(html, cls){
+    var div=document.createElement('div'); div.className='line '+(cls||'out'); div.innerHTML=html; output.appendChild(div); scrollEnd(); return div;
+  }
+  function addCmd(cmd){
+    addHTML('<span class="ps1"><span class="user">sandeep@skullace</span><span style="color:#93a7b3">:</span><span class="host">~</span><span style="color:#93a7b3">$</span></span>  '+esc(cmd),'line cmd');
+  }
+  function sleep(ms){ return reduced?Promise.resolve():new Promise(function(r){setTimeout(r,ms)}); }
+  function typeInto(text){
+    return new Promise(function(resolve){
+      if(reduced){ addCmd(text); resolve(); return; }
+      var div=document.createElement('div'); div.className='line cmd';
+      div.innerHTML='<span class="ps1"><span class="user">sandeep@skullace</span><span style="color:#93a7b3">:</span><span class="host">~</span><span style="color:#93a7b3">$</span></span>  <span class="typed"></span><span class="cursor"></span>';
+      output.appendChild(div); scrollEnd();
+      var span=div.querySelector('.typed'); var i=0;
+      (function step(){ if(i<=text.length){ span.textContent=text.slice(0,i); i++; scrollEnd(); setTimeout(step, 34+Math.random()*28); } else { var cur=div.querySelector('.cursor'); if(cur) cur.remove(); resolve(); } })();
+    });
+  }
+
+  /* ---------- command outputs ---------- */
+  var COMMANDS = {
+    help: function(){ return '<b>Available commands</b> — type one or tap a chip below:<br>'+
+      cmdRow('whoami','who I am')+cmdRow('about','a short intro')+cmdRow('skills','tech stack by category')+cmdRow('experience','work history')+cmdRow('labs','RHCSA / Linux practical labs')+cmdRow('projects','AWS, DevOps &amp; security projects')+cmdRow('learning','what I\'m learning now')+cmdRow('contact','email, LinkedIn &amp; GitHub')+cmdRow('banner','replay the intro')+cmdRow('clear','clear the terminal')+
+      '<span class="dim">Psst — also try: </span><button class="inline-cmd" data-cmd="date">date</button> <button class="inline-cmd" data-cmd="ls">ls</button> <button class="inline-cmd" data-cmd="sudo-hire">sudo hire sandeep</button>'; },
+    whoami: function(){ return '<b class="g">Sandeep S Rajesh</b> <span class="dim">(Skullace)</span><br>System Engineer | Linux • Cloud • DevOps<br><span class="dim">IT Infrastructure Administrator with 4+ years across servers, networks, firewalls &amp; systems — now specialising in Linux, AWS and automation.</span>'; },
+    about: function(){ return 'I design, deploy and keep infrastructure running: <b>Linux &amp; RHEL</b>, <b>Windows Server</b>, network configuration &amp; troubleshooting, firewalls and monitoring.<br>Currently training at <b>IPSR (Sep 2026 – Present)</b> — advancing into <span class="c">AWS cloud</span> and <span class="c">DevOps</span> with Docker, Kubernetes, Ansible &amp; Terraform through hands-on labs.<br><span class="g">"Building. Automating. Securing."</span>'; },
+    skills: function(){ return '<b>▸ SYSTEM ADMINISTRATION</b><br>'+tags(['Linux','RHEL 10','Windows Server','Bash','SSH','LVM','NFS / AutoFS','Permissions','Monitoring'])+'<br><b>▸ CLOUD — AWS</b> <span class="y">(learning / hands-on labs)</span><br>'+tags(['EC2','S3','IAM','VPC','Route 53','CloudWatch'])+'<br><b>▸ DEVOPS</b><br>'+tags(['Git','GitHub','Docker','Kubernetes','Jenkins','Ansible','Terraform','GitHub Actions','CI/CD'])+'<br><b>▸ NETWORKING &amp; SECURITY</b><br>'+tags(['TCP/IP','DNS','DHCP','VLAN','VPN','Firewalls','SonicWall','Security Auditing'])+'<br><b>▸ MONITORING</b><br>'+tags(['Grafana','Prometheus','Nagios','Zabbix']); },
+    experience: function(){ return '<b>Experience</b> <span class="dim">— 4+ years, infrastructure &amp; systems</span><br><br>'+
+      '<span class="g">●</span> <b>IPSR</b> — Cloud &amp; DevOps Training <span class="dim">· Sep 2026 – Present</span><br><span class="dim">   RHCSA / RHEL, AWS, Docker &amp; Kubernetes — hands-on labs.</span><br>'+
+      '<span class="g">●</span> <b>Luxon</b> — IT / Systems <span class="dim">· Jul 2024 – Aug 2026</span><br>'+
+      '<span class="g">●</span> <b>Analytix</b> — IT Support / Systems <span class="dim">· before Luxon</span><br>'+
+      '<span class="g">●</span> <b>Fox Tech</b> — IT Role <span class="dim">· 2021 – 2023</span><br><br><span class="dim">Full details are on my resume &amp; LinkedIn — run </span><button class="inline-cmd" data-cmd="contact">contact</button><span class="dim"> to reach me.</span>'; },
+    labs: function(){ return '<b>~/labs/rhcsa</b> <span class="dim">— RHCSA practical labs (in progress)</span><br>'+tags(['User & Group Mgmt','LVM & Filesystems','NFS / AutoFS','Permissions & ACLs','Bash Scripting','System Monitoring','SSH Hardening'])+'<br><span class="dim">Status: </span><span class="y">In Progress</span><span class="dim"> — repos coming soon as each lab is published.</span>'; },
+    projects: function(){ return '<b>Featured project areas</b> <span class="dim">— placeholder links, repos landing soon</span><br><br>'+
+      proj('🐧','Linux System Administration','RHEL setup, hardening &amp; automation scripts.')+
+      proj('☁️','AWS Cloud Infrastructure','EC2, S3, IAM &amp; VPC builds in labs.')+
+      proj('🐳','Docker &amp; Containerization','Images, compose stacks &amp; K8s basics.')+
+      proj('⚙️','CI/CD Automation','GitHub Actions &amp; Jenkins pipelines.')+
+      proj('🏗️','Infrastructure as Code','Terraform &amp; Ansible — learning track.')+
+      proj('🛡️','Networking &amp; Security','Firewall, VLAN, VPN &amp; auditing work.'); },
+    learning: function(){ return '<b>Currently learning</b><br>'+tags(['Advanced Linux Administration','RHCSA — RHEL 10','AWS Cloud Infrastructure','Docker & Kubernetes','Terraform & Ansible','DevOps CI/CD','Cloud Security'])+'<br><span class="dim">Honest levels: Linux &amp; networking are my daily-work strengths; AWS / K8s / IaC are active learning — no fake expertise here.</span>'; },
+    contact: function(){ return '<b>Contact</b><br>✉ Email &nbsp;&nbsp;<a href="mailto:avusandeep@gmail.com">avusandeep@gmail.com</a><br>in LinkedIn <a href="https://www.linkedin.com/in/sandeep-s-rajesh-424b8b224/" target="_blank" rel="noopener">linkedin.com/in/sandeep-s-rajesh-424b8b224</a><br>⌥ GitHub &nbsp;<a href="https://github.com/skullace-25" target="_blank" rel="noopener">github.com/skullace-25</a><br><span class="dim">Portfolio: coming soon</span>'; },
+    socials: function(){ return COMMANDS.contact(); },
+    banner: function(){ boot(); return null; },
+    date: function(){ return new Date().toString(); },
+    ls: function(){ return 'about.txt &nbsp; skills.txt &nbsp; experience/ &nbsp; labs/ &nbsp; projects/ &nbsp; contact.sh<br><span class="dim">Try: </span><button class="inline-cmd" data-cmd="skills">cat skills.txt → skills</button>'; },
+    echo: function(args){ return esc(args.join(' ')||''); },
+    'sudo-hire': function(){ return '<span class="g">[sudo]</span> Permission granted. ✔<br><b>Excellent decision.</b> Sandeep is open to System Engineer / Linux / Cloud roles.<br>Reach him at <a href="mailto:avusandeep@gmail.com">avusandeep@gmail.com</a> — he replies like a well-configured server: reliably.'; },
+    clear: function(){ output.innerHTML=''; return null; }
+  };
+  function cmdRow(name,desc){ return '  <button class="inline-cmd" data-cmd="'+name+'">'+name.padEnd(12,' ')+'</button><span class="dim">'+desc+'</span><br>'; }
+  function tags(list){ return list.map(function(t){return '<span class="tag">'+t+'</span>';}).join(''); }
+  function proj(icon,title,desc){ return icon+' <b>'+title+'</b> — <span class="dim">'+desc+'</span><br>'; }
+
+  function runCommand(raw, typed){
+    var trimmed=(raw||'').trim();
+    if(!trimmed) return Promise.resolve();
+    if(!typed) addCmd(trimmed);
+    history.unshift(trimmed); histIdx=-1;
+    var parts=trimmed.split(/\s+/); var name=parts[0].toLowerCase(); var args=parts.slice(1);
+    // aliases
+    if(name==='sudo' && args.join(' ').toLowerCase().indexOf('hire')>-1) name='sudo-hire';
+    if(name==='cat' && args[0]==='skills.txt') name='skills';
+    if(name==='cat' && args[0]==='about.txt') name='about';
+    if(name==='./contact.sh') name='contact';
+    if(name==='whoami') name='whoami';
+    var fn=COMMANDS[name];
+    if(name==='clear'){ COMMANDS.clear(); return Promise.resolve(); }
+    if(!fn){ addHTML('<span style="color:#ff7b72">command not found:</span> '+esc(name)+'<br><span class="dim">Type </span><button class="inline-cmd" data-cmd="help">help</button><span class="dim"> to see what\'s available.</span>'); return Promise.resolve(); }
+    var result=fn(args);
+    if(result) addHTML(result);
+    scrollEnd();
+    return Promise.resolve();
+  }
+
+  /* clickable commands: simulate typing, then run */
+  function runViaTyping(cmd){
+    if(booting) return;
+    booting=true; input.value='';
+    typeInto(cmd).then(function(){ booting=false; runCommand(cmd,true); input.focus(); });
+  }
+  document.addEventListener('click', function(e){
+    var el=e.target.closest('[data-cmd]'); if(!el) return;
+    var cmd=el.getAttribute('data-cmd');
+    if(cmd==='clear'){ output.innerHTML=''; addHTML('<span class="dim">Terminal cleared. Type </span><button class="inline-cmd" data-cmd="help">help</button><span class="dim"> to continue.</span>'); return; }
+    runViaTyping(cmd);
+  });
+  document.getElementById('clearBtnTop').addEventListener('click', function(){ output.innerHTML=''; input.focus(); });
+  document.getElementById('replayBtn').addEventListener('click', function(){ output.innerHTML=''; boot(); });
+
+  /* form / keyboard */
+  form.addEventListener('submit', function(e){ e.preventDefault(); var v=input.value; input.value=''; runCommand(v,false); });
+  input.addEventListener('keydown', function(e){
+    if(e.key==='ArrowUp'){ e.preventDefault(); if(histIdx<history.length-1){ histIdx++; input.value=history[histIdx]||''; } }
+    else if(e.key==='ArrowDown'){ e.preventDefault(); if(histIdx>0){ histIdx--; input.value=history[histIdx]||''; } else { histIdx=-1; input.value=''; } }
+    else if(e.key==='Tab'){ e.preventDefault(); var v=input.value.trim().toLowerCase(); if(!v) return; var names=Object.keys(COMMANDS).concat(['sudo hire sandeep']); var match=names.filter(function(n){return n.indexOf(v)===0;}); if(match.length===1) input.value=match[0]; }
+    else if(e.key==='l' && e.ctrlKey){ e.preventDefault(); output.innerHTML=''; }
+  });
+  document.getElementById('terminal').addEventListener('click', function(e){ if(e.target.tagName!=='A' && e.target.tagName!=='BUTTON') input.focus(); });
+
+  /* ---------- boot sequence ---------- */
+  async function boot(){
+    if(booting) return; booting=true;
+    addHTML('<span class="dim">Last login: '+new Date().toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short',year:'numeric'})+' — Welcome to Skullace OS v1.0</span>');
+    await sleep(350);
+    await typeInto('whoami'); await sleep(120);
+    addHTML('<b class="g">Sandeep S Rajesh</b> — System Engineer | Linux • AWS Cloud • DevOps');
+    await sleep(280);
+    await typeInto('cat skills.txt'); await sleep(120);
+    addHTML('Linux | RHEL | AWS | Docker | Kubernetes<br>Networking | Automation | Cybersecurity');
+    await sleep(280);
+    await typeInto('echo "Building. Automating. Securing."'); await sleep(120);
+    addHTML('<span class="g">Building. Automating. Securing.</span>');
+    await sleep(300);
+    addHTML('<br>👋 <b>Interactive terminal</b> — type <button class="inline-cmd" data-cmd="help">help</button> below, tap a command chip, or click any <span class="c" style="text-decoration:underline">underlined command</span> right here: <button class="inline-cmd" data-cmd="skills">skills</button> <button class="inline-cmd" data-cmd="experience">experience</button> <button class="inline-cmd" data-cmd="contact">contact</button>');
+    booting=false; input.focus();
+  }
+  boot();
+})();
+</script>
+</body>
+</html>
